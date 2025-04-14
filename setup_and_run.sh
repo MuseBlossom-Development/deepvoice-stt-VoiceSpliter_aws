@@ -65,10 +65,10 @@ echo "========== 시스템 종속성 설치 =========="
 echo "필요한 시스템 패키지 설치 중..."
 if [ "$EUID" -eq 0 ]; then
     UPDATE_CMD="apt-get update"
-    INSTALL_CMD="apt-get install -y ffmpeg git cmake build-essential"
+    INSTALL_CMD="apt-get install -y ffmpeg git cmake build-essential libavcodec-dev libavformat-dev libavutil-dev"
 else
     UPDATE_CMD="sudo apt-get update"
-    INSTALL_CMD="sudo apt-get install -y ffmpeg git cmake build-essential"
+    INSTALL_CMD="sudo apt-get install -y ffmpeg git cmake build-essential libavcodec-dev libavformat-dev libavutil-dev"
 fi
 
 $UPDATE_CMD
@@ -111,12 +111,11 @@ if [ ! -d "whisper.cpp" ]; then
         fi
     else
         echo "resources 폴더가 없습니다. 필요한 모델 파일이 있는지 확인하세요."
-        aws s3 cp --no-sign-request s3://muse-gs-123/resources/ggml-large-v3-turbo.bin ../resources/
-        aws s3 cp --no-sign-request s3://muse-gs-123/resources/ggml-large-v3-turbo-encoder.mlmodelc/ ../resources/ --recursive
+        aws s3 cp --no-sign-request s3://muse-gs-123/resources ../resources/ --recursive
     fi
     
     # 항상 기본 빌드 방식으로 진행 (CoreML 관련 옵션 제거)
-    cmake -B build
+    cmake -B build -D WHISPER_FFMPEG=yes
     cmake --build build --config Release -j
     cd ..
 else
@@ -127,13 +126,25 @@ echo "========== Silero VAD 모델 사전 다운로드 =========="
 python -c "import torch; torch.hub.load('snakers4/silero-vad', model='silero_vad')" || echo "Silero VAD 모델 다운로드 실패, 나중에 재시도됩니다."
 
 echo "========== 메인 스크립트 실행 =========="
-# 첫 설치 시 테스트용 자동 실행 (Tvoice.mp3)
 MARKER="installed.flag"
 if [ ! -f "$MARKER" ]; then
     echo "첫 설치로 판단됩니다. 같은 폴더에 있는 Tvoice.mp3 파일을 이용하여 자동 테스트를 진행합니다."
     TEST_FILE="$(pwd)/Tvoice.mp3"
     if [ -f "$TEST_FILE" ]; then
+        START_TIME=$(date +%s)
         python STT_Voice_Spliter.py "$TEST_FILE"
+        END_TIME=$(date +%s)
+        ELAPSED_TIME=$((END_TIME - START_TIME))
+        echo "전체 프로세싱 시간: ${ELAPSED_TIME}초"
+        # 테스트 파일에 기반하여 생성된 폴더 제거
+        TEST_BASENAME=$(basename "$TEST_FILE" .mp3)
+        TEST_FOLDER="split_audio/$TEST_BASENAME"
+        if [ -d "$TEST_FOLDER" ]; then
+            echo "테스트 폴더($TEST_FOLDER)를 삭제합니다."
+            rm -rf "$TEST_FOLDER"
+        else
+            echo "테스트 폴더 $TEST_FOLDER 가 존재하지 않습니다."
+        fi
         touch "$MARKER"
         echo "자동 테스트 완료 및 설치 마커 생성: $MARKER"
     else
