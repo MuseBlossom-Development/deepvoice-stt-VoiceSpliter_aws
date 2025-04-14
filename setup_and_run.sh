@@ -85,7 +85,7 @@ install_package "requests"
 install_package "aiohttp" 
 install_package "aiofiles"
 install_package "numpy"
-install_package "awscli"
+# awscli 관련 코드 제거: install_package "awscli"
 
 # Linux용 PyTorch 설치
 install_package "torch"
@@ -114,8 +114,23 @@ if [ ! -d "whisper.cpp" ]; then
         aws s3 cp --no-sign-request s3://muse-gs-123/resources ../resources/ --recursive
     fi
     
-    # 항상 기본 빌드 방식으로 진행 (CoreML 관련 옵션 제거)
-    cmake -B build -D WHISPER_FFMPEG=yes
+    # GPU 지원 옵션 결정
+    if command -v nvidia-smi &> /dev/null; then
+        GPU_CC=$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader | head -n 1)
+        echo "GPU Compute Capability: $GPU_CC"
+        # 비교를 위해 bc 사용 (8.6 이상이면 최신 GPU로 간주)
+        if (( $(echo "$GPU_CC >= 8.6" | bc -l) )); then
+            echo "신형 NVIDIA GPU가 감지되었습니다. CUDA 지원 빌드를 진행합니다. (-DCMAKE_CUDA_ARCHITECTURES=\"86\")"
+            cmake -B build -DGGML_CUDA=1 -DCMAKE_CUDA_ARCHITECTURES="86"
+        else
+            echo "구형 NVIDIA GPU가 감지되었습니다. 기본 CUDA 빌드를 진행합니다."
+            # cmake -B build -DGGML_CUDA=1
+            cmake -B build 
+        fi
+    else
+        echo "NVIDIA GPU가 감지되지 않았습니다. 기본 빌드를 진행합니다."
+        cmake -B build
+    fi
     cmake --build build --config Release -j
     cd ..
 else
@@ -143,7 +158,7 @@ if [ ! -f "$MARKER" ]; then
             echo "테스트 폴더($TEST_FOLDER)를 삭제합니다."
             rm -rf "$TEST_FOLDER"
         else
-            echo "테스트 폴더 $TEST_FOLDER 가 존재하지 않습니다."
+            echo "테스트 폴더 $TEST_FOLDER가 존재하지 않습니다."
         fi
         touch "$MARKER"
         echo "자동 테스트 완료 및 설치 마커 생성: $MARKER"

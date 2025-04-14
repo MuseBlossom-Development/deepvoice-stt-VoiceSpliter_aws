@@ -302,6 +302,7 @@ def transcribe_audio(mp3_folder, text_folder):
         WHISPER_CLI,
         "--model", WHISPER_MODEL,
         "--language", "ko",
+        "--threads","8",
         "--output-txt"
     ] + audio_files
     print("🚀 Whisper CLI 실행 중...")
