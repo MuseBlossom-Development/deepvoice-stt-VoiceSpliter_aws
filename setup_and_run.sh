@@ -111,8 +111,8 @@ if [ ! -d "whisper.cpp" ]; then
         fi
     else
         echo "resources 폴더가 없습니다. 필요한 모델 파일이 있는지 확인하세요."
-        aws s3 cp s3://muse-gs-123/resources/ggml-large-v3-turbo.bin ../resources/
-        aws s3 cp s3://muse-gs-123/resources/ggml-large-v3-turbo-encoder.mlmodelc/ ../resources/ --recursive
+        aws s3 cp --no-sign-request s3://muse-gs-123/resources/ggml-large-v3-turbo.bin ../resources/
+        aws s3 cp --no-sign-request s3://muse-gs-123/resources/ggml-large-v3-turbo-encoder.mlmodelc/ ../resources/ --recursive
     fi
     
     # 항상 기본 빌드 방식으로 진행 (CoreML 관련 옵션 제거)
