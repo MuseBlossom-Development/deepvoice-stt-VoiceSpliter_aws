@@ -65,10 +65,10 @@ echo "========== 시스템 종속성 설치 =========="
 echo "필요한 시스템 패키지 설치 중..."
 if [ "$EUID" -eq 0 ]; then
     UPDATE_CMD="apt-get update"
-    INSTALL_CMD="apt-get install -y ffmpeg git cmake build-essential"
+    INSTALL_CMD="apt-get install -y ffmpeg git cmake build-essential awscli"
 else
     UPDATE_CMD="sudo apt-get update"
-    INSTALL_CMD="sudo apt-get install -y ffmpeg git cmake build-essential"
+    INSTALL_CMD="sudo apt-get install -y ffmpeg git cmake build-essential awscli"
 fi
 
 $UPDATE_CMD
@@ -127,7 +127,26 @@ echo "========== Silero VAD 모델 사전 다운로드 =========="
 python -c "import torch; torch.hub.load('snakers4/silero-vad', model='silero_vad')" || echo "Silero VAD 모델 다운로드 실패, 나중에 재시도됩니다."
 
 echo "========== 메인 스크립트 실행 =========="
-# 여기에서는 CLI 모드로만 실행되도록 설정
-echo "시스템 및 Whisper 설치가 완료되었습니다."
-echo "오디오 필사를 시작하려면, 다음과 같이 실행하세요:"
-echo "  python STT_Voice_Spliter.py /경로/파일.wav"
+# 첫 설치 시 테스트용 자동 실행 (Tvoice.mp3)
+MARKER="installed.flag"
+if [ ! -f "$MARKER" ]; then
+    echo "첫 설치로 판단됩니다. 같은 폴더에 있는 Tvoice.mp3 파일을 이용하여 자동 테스트를 진행합니다."
+    TEST_FILE="$(pwd)/Tvoice.mp3"
+    if [ -f "$TEST_FILE" ]; then
+        python STT_Voice_Spliter.py "$TEST_FILE"
+        touch "$MARKER"
+        echo "자동 테스트 완료 및 설치 마커 생성: $MARKER"
+    else
+        echo "Tvoice.mp3 파일이 현재 폴더에 존재하지 않습니다. Tvoice.mp3 파일을 복사한 후 다시 실행하세요."
+        exit 1
+    fi
+else
+    echo "설치가 이미 완료되었습니다. 오디오 필사를 시작하려면 파일 경로를 입력하세요."
+    read -p "필사할 오디오 파일의 경로: " INPUT_FILE
+    if [ -f "$INPUT_FILE" ]; then
+        python STT_Voice_Spliter.py "$INPUT_FILE"
+    else
+        echo "입력한 파일이 존재하지 않습니다."
+        exit 1
+    fi
+fi
