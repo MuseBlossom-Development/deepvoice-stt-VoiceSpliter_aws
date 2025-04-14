@@ -1,0 +1,7 @@
+{
+    "min_speech_duration_ms": 500,
+    "min_silence_duration_ms": 700,
+    "max_speech_duration_s": 18.0,
+    "speech_pad_ms": 10,
+    "threshold": 0.6
+}
