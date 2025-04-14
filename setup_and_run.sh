@@ -65,10 +65,10 @@ echo "========== 시스템 종속성 설치 =========="
 echo "필요한 시스템 패키지 설치 중..."
 if [ "$EUID" -eq 0 ]; then
     UPDATE_CMD="apt-get update"
-    INSTALL_CMD="apt-get install -y ffmpeg git cmake build-essential awscli"
+    INSTALL_CMD="apt-get install -y ffmpeg git cmake build-essential"
 else
     UPDATE_CMD="sudo apt-get update"
-    INSTALL_CMD="sudo apt-get install -y ffmpeg git cmake build-essential awscli"
+    INSTALL_CMD="sudo apt-get install -y ffmpeg git cmake build-essential"
 fi
 
 $UPDATE_CMD
