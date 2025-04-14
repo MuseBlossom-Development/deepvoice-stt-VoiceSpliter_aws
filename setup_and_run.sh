@@ -54,7 +54,7 @@ if conda env list | grep -q "stt_env"; then
 fi
 
 echo "새로운 stt_env 환경을 생성합니다..."
-conda create -y -n stt_env python=3.11 tk ffmpeg
+conda create -y -n stt_env python=3.11 tk ffmpeg 
 
 echo "========== Conda 환경 활성화 =========="
 conda activate stt_env || { echo "환경 활성화 실패"; exit 1; }
@@ -85,6 +85,7 @@ install_package "requests"
 install_package "aiohttp" 
 install_package "aiofiles"
 install_package "numpy"
+install_package "awscli"
 
 # Linux용 PyTorch 설치
 install_package "torch"
