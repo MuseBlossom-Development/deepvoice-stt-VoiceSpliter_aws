@@ -1,9 +1,10 @@
 # 🗣️ STT Voice Splitter (Whisper 기반 음성 필사 GUI)
 
-Whisper.cpp + Silero VAD + Tkinter 기반의 **오디오 필사 자동화 GUI** 도구입니다.  
-MacOS(M1/M2 포함)에서 Conda 환경과 CoreML을 활용하여, 누구나 쉽게 오디오를 분할하고 텍스트로 변환할 수 있습니다.
-윈도우 및 Intel기반 Mac은 지원하지 않습니다
+Whisper.cpp + Silero VAD 
 
+음성을 자동으로 감지하여 컷팅후 필사합니다.
+GPU종속성을 가지지 않으며
+CPU만으로 동작합니다.
 ---
 
 ## 🗣️ 필요 종속성
@@ -18,8 +19,6 @@ MacOS(M1/M2 포함)에서 Conda 환경과 CoreML을 활용하여, 누구나 쉽�
 - ✅ Whisper.cpp 자동 설치 및 빌드
 - ✅ Silero VAD를 통한 음성 구간 자동 분리
 - ✅ Whisper CLI를 통한 고속 필사 (한국어 지원)
-- ✅ Tkinter GUI 제공 (설정 저장, 로그 출력 등)
-- ✅ macOS (Intel/ARM) 환경 자동 인식 및 최적화
 
 ---
 
@@ -28,8 +27,8 @@ MacOS(M1/M2 포함)에서 Conda 환경과 CoreML을 활용하여, 누구나 쉽�
 # 1. GitHub 저장소 클론
 
 ```bash
-git clone https://github.com/MuseBlossom-Development/deepvoice-stt-VoiceSpliter.git
-cd deepvoice-stt-VoiceSpliter
+git clone https://github.com/MuseBlossom-Development/deepvoice-stt-VoiceSpliter_aws.git
+cd deepvoice-stt-VoiceSpliter_aws
 ```
 
 
